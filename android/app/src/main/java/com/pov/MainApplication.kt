@@ -1,4 +1,4 @@
-package com.expo.template
+package com.pov
 
 import android.app.Application
 import android.content.res.Configuration

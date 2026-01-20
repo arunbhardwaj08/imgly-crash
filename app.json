@@ -6,10 +6,12 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.expo.template"
+      "bundleIdentifier": "com.pov"
     },
     "android": {
       "adaptiveIcon": {
@@ -17,7 +19,7 @@
         "backgroundColor": "#232323"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.expo.template"
+      "package": "com.pov"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -38,11 +40,17 @@
         "expo-build-properties",
         {
           "ios": {
-            "deploymentTarget": "16.0"
+            "deploymentTarget": "16.0",
+            "useFrameworks": "static"
           }
         }
       ],
-      ["./plugins/withIosDeploymentTarget.js", { "deploymentTarget": "16.0" }]
+      [
+        "./plugins/withIosDeploymentTarget.js",
+        {
+          "deploymentTarget": "16.0"
+        }
+      ]
     ]
   }
 }

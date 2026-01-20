@@ -1,6 +1,17 @@
 # ExpoTemplate
 
-A modern, customizable React Native template app built with Expo, React Navigation, Redux Toolkit, Unistyles theming, and localization support. This template provides a solid foundation for building cross-platform mobile applications for Android, iOS, and Web.
+# ExpoTemplate
+
+This is a minimal repo to reproduce crash in IMGLY.
+The first screen you see allows you to pick a video for editing.
+
+## Steps to Reproduce Crash
+
+1. Select a video from the gallery to edit.
+2. When the editor is opened, choose the camera option to add a video.
+3. Start the recording.
+4. Stop the recording.
+5. **Issue**: The app gets stuck after stopping the recording.
 
 ## Features
 
@@ -48,16 +59,13 @@ reactnativetemplateapp/
 
 ### Installation
 
-1. **Clone the repository:**
-   ```sh
-   git clone <your-repo-url>
-   cd reactnativetemplateapp
-   ```
-2. **Install dependencies:**
+1. **Install dependencies:**
    ```sh
    yarn install
-   # or
-   npm install
+   ```
+2. **Install iOS Pods:**
+   ```sh
+   cd ios && pod install && cd ..
    ```
 3. **Start the development server:**
    ```sh
@@ -130,6 +138,49 @@ See `package.json` for all available scripts.
 ## EAS Build
 - Pre-configured for [Expo Application Services (EAS)](https://docs.expo.dev/eas/).
 - See `eas.json` for build profiles.
+
+## Known Issues
+
+### IMGLY CE SDK Video Editor Crash
+
+**Issue**: The app crashes/stucks when attempting to record a new video using the camera feature within the IMGLY video editor.
+
+**Affected Component**: `src/screens/Login/Login.js`
+
+**IMGLY SDK Version**: `@imgly/editor-react-native@1.66.0` and `@imgly/camera-react-native@1.66.0`
+
+#### Steps to Reproduce:
+
+1. **Launch the App**
+   - Start the application and navigate to the Login screen (which serves as the IMGLY video editor demo screen)
+
+2. **Select Initial Video**
+   - Tap on the "Select Video from Device" button
+   - Grant media library permissions if prompted
+   - Select any video from your device's gallery
+   - The IMGLY video editor will open with the selected video
+
+3. **Access Camera Feature**
+   - Inside the IMGLY video editor interface, locate and tap the camera icon/option
+   - This option allows you to add additional video content to your existing video
+
+4. **Start Recording**
+   - Grant camera permissions if prompted
+   - Tap the record button to start recording a new video clip
+
+5. **Stop Recording (Crash Point)**
+   - Tap the stop button to end the recording
+   - **Expected**: The recorded video should be added to the editor
+   - **Actual**: The app becomes unresponsive or crashes at this point
+
+#### Technical Details:
+- The crash occurs specifically when stopping the camera recording within the IMGLY editor
+- The initial video selection and editor opening work correctly
+- The issue is isolated to the camera recording feature within the editor
+- This appears to be related to the IMGLY CE SDK's camera integration
+
+#### Workaround:
+Currently, there is no known workaround. Avoid using the camera feature within the video editor until this issue is resolved.
 
 ## License
 

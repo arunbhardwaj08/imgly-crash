@@ -1,75 +1,131 @@
-import { Text, View } from "react-native";
+import "react-native-gesture-handler";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { Text, View, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import React from "react";
-import { StyleSheet, useUnistyles } from "react-native-unistyles";
-import { Button, ScreenWrapper, TextField } from "@/components";
-import { ms } from "@/utils";
-import { fonts } from "@/theme";
-import { useDispatch } from "react-redux";
-import { login } from "@/redux/slices/userSlicer";
-import { showErrorToast } from "@/components/ToastAlert";
+import * as ImagePicker from "expo-image-picker";
+import IMGLYEditor, {
+  EditorPreset,
+  EditorSettingsModel,
+  SourceType,
+} from "@imgly/editor-react-native";
 
 const Login = () => {
-  const { theme } = useUnistyles();
+  const pickVideoAndOpenEditor = async () => {
+    try {
+      // Request media library permissions
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
-  const [email, setEmail] = React.useState("");
-  const [password, setPassword] = React.useState("");
-  const dispatch = useDispatch();
+      if (status !== "granted") {
+        Alert.alert(
+          "Permission Required",
+          "Sorry, we need media library permissions to select videos!"
+        );
+        return;
+      }
 
-  const onPressLogin = () => {
-    if (email.trim() === "") {
-      showErrorToast({ title: "Please enter email" });
-      return;
+      // Launch image picker to select video
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ["videos"],
+        allowsEditing: false,
+        quality: 1,
+      });
+
+      if (result.canceled) {
+        return;
+      }
+
+      // Get the selected video URI
+      const videoUri = result.assets[0].uri;
+
+      // Configure IMGLY Editor settings
+      const settings = new EditorSettingsModel({
+        license: null, // TODO: Add your license key here (null for evaluation mode with watermark)
+        userId: "user_123", // Optional: Add unique user ID
+      });
+
+      // Open IMGLY Video Editor with the selected video
+      const editorResult = await IMGLYEditor.openEditor(
+        settings,
+        {
+          source: videoUri,
+          type: SourceType.VIDEO,
+        },
+        EditorPreset.VIDEO
+      );
+
+      console.log("Editor result:", editorResult);
+
+      if (editorResult) {
+        Alert.alert("Success", "Video edited successfully!");
+      }
+    } catch (error) {
+      console.error("Error opening video editor:", error);
+      Alert.alert("Error", `Failed to open video editor: ${error.message}`);
     }
-
-    if (password.trim() === "") {
-      showErrorToast({ title: "Please enter password" });
-      return;
-    }
-
-    const params = {
-      email,
-      password,
-    };
-    dispatch(login(params));
   };
 
   return (
-    <ScreenWrapper style={styles.container}>
-      <Text style={styles.title}>Login</Text>
-      <View style={{ marginVertical: ms(20) }}>
-        <TextField
-          placeholder="Enter your email"
-          containerStyle={styles.textFieldContainer}
-          value={email}
-          onChangeText={setEmail}
-        />
-        <TextField
-          placeholder="Enter your password"
-          secureTextEntry
-          containerStyle={styles.textFieldContainer}
-          value={password}
-          onChangeText={setPassword}
-        />
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <View style={styles.container}>
+        <Text style={styles.title}>IMGLY Video Editor</Text>
+        <Text style={styles.subtitle}>Select a video to edit</Text>
+
+        <TouchableOpacity
+          style={styles.button}
+          onPress={pickVideoAndOpenEditor}
+        >
+          <Text style={styles.buttonText}>Select Video from Device</Text>
+        </TouchableOpacity>
+
+        <Text style={styles.note}>
+          Note: Add your IMGLY license key in the code
+        </Text>
       </View>
-      <Button
-        type="primary"
-        title="Sign in"
-        style={styles.btnStyle}
-        onPress={onPressLogin}
-      />
-    </ScreenWrapper>
+    </GestureHandlerRootView>
   );
-};
+}
 
 export default Login;
 
-const styles = StyleSheet.create((theme) => ({
+const styles = StyleSheet.create({
   container: {
-    padding: ms(20),
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: "#FFFFFF",
+    padding: 20,
   },
-  title: { fontFamily: fonts.openSan.bold, fontSize: ms(30) },
-  textFieldContainer: { width: "100%" },
-  btnStyle: { marginTop: ms(20) },
-}));
+  title: {
+    fontSize: 28,
+    fontWeight: "bold",
+    marginBottom: 10,
+    color: "#000000",
+  },
+  subtitle: {
+    fontSize: 16,
+    color: "#666666",
+    marginBottom: 40,
+  },
+  button: {
+    backgroundColor: "#007AFF",
+    paddingHorizontal: 30,
+    paddingVertical: 15,
+    borderRadius: 10,
+    elevation: 3,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  buttonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  note: {
+    fontSize: 12,
+    color: "#999999",
+    marginTop: 30,
+    textAlign: "center",
+  },
+});
